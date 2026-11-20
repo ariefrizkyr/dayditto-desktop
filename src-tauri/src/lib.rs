@@ -22,7 +22,7 @@ pub const MAIN: &str = "main";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let app = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         // Registered first: a second launch (e.g. by a deep link) hands its arguments to this instance.
         .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
             deep_link::handle_args(app, &argv);
@@ -40,10 +40,16 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))
-        .plugin(shortcut::plugin())
+        .plugin(shortcut::plugin());
+    // The quick capture window is a non-activating panel on macOS (quick.rs).
+    #[cfg(target_os = "macos")]
+    let builder = builder.plugin(tauri_nspanel::init());
+
+    let app = builder
         .invoke_handler(tauri::generate_handler![
             commands::set_badge,
             commands::hide_quick,
+            commands::quick_saved,
             commands::open_external
         ])
         .on_window_event(|window, event| {
@@ -67,10 +73,13 @@ pub fn run() {
         .expect("error while building DayDitto");
 
     app.run(|handle, event| {
-        // Dock icon clicked while the main window is hidden.
+        // Dock icon clicked while the main window is hidden. A reopen right after the quick
+        // capture window was toggled isn't a Dock click: the main window stays as it was.
         #[cfg(target_os = "macos")]
         if let RunEvent::Reopen { .. } = event {
-            show_main(handle);
+            if !quick::recently_toggled() {
+                show_main(handle);
+            }
         }
     });
 }

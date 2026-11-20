@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "dayditto-web",
-  "description": "What https://dayditto.prototypolab.com may do in the main and quick windows: the three app commands and listening to the native menu event. Nothing else, and nothing for local pages (the splash needs no IPC).",
+  "description": "What https://dayditto.prototypolab.com may do in the main and quick windows: the four app commands and listening to app events (menu, tasks-changed, quick-shown). Nothing else, and nothing for local pages (the splash needs no IPC).",
   "windows": ["main", "quick"],
   "local": false,
   "remote": {
@@ -12,6 +12,7 @@
     "core:event:allow-unlisten",
     "allow-set-badge",
     "allow-hide-quick",
+    "allow-quick-saved",
     "allow-open-external"
   ]
 }

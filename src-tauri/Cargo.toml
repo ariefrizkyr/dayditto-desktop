@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # `macos-private-api` matches `app.macOSPrivateApi` (transparent quick window); a no-op since tauri 2.12.1.
+# tauri-nspanel turns it on too.
 tauri = { version = "2", features = ["macos-private-api"] }
 tauri-plugin-autostart = "2"
 tauri-plugin-deep-link = "2"
@@ -27,6 +28,10 @@ tauri-plugin-updater = "2"
 tauri-plugin-window-state = "2"
 # Required by `tauri::generate_context!()`.
 serde_json = "1"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Turns the quick capture window into a non-activating floating NSPanel (no crate features).
+tauri-nspanel = "2.1"
 
 [profile.release]
 codegen-units = 1

@@ -9,6 +9,11 @@ local splash, then loads the site in a WKWebView, and adds what a browser tab ca
   (`/quick`) that files a thought into a list. Enter saves and closes, ⌘Enter saves and stays,
   Esc closes; clicking elsewhere dismisses it. The shortcut is fixed in v1; if another app
   already owns it, DayDitto runs without it (logged).
+  The window is a non-activating floating panel ([tauri-nspanel](https://github.com/ahkohd/tauri-nspanel)):
+  it takes the keyboard without activating DayDitto, so the main window stays as it was (hidden
+  stays hidden, in the background stays there) and closing it leaves you in the app you were in.
+  It shows on every Space, over full-screen apps too. A saved task reaches the main window right
+  away (`quick_saved` → `tasks-changed` event); the main window also refreshes when it regains focus.
 - **Native menu**: Edit (undo/copy/paste for text fields), View (Reload, Full Screen), Go (Today ⌘T,
   Week ⇧⌘W, Focus Mode ⇧⌘F, Quick Dump ⌘N, Settings ⌘,), Window, Help, plus *Check for Updates…*
   and *Launch at Login* in the app menu.
@@ -23,9 +28,10 @@ Bundle id `com.prototypolab.dayditto`, universal binary (Apple Silicon + Intel),
 
 - All content is remote (the DayDitto origin) except the bundled splash (`dist/`), which has a
   `'self'`-only CSP and no IPC access.
-- **Only three commands** are exposed, and only to `https://dayditto.prototypolab.com/*` in the
+- **Only four commands** are exposed, and only to `https://dayditto.prototypolab.com/*` in the
   `main` and `quick` windows (`src-tauri/capabilities/default.json`): `set_badge`, `hide_quick`,
-  `open_external` (https URLs only). The web page may also listen to events (the menu actions).
+  `quick_saved` (only emits `tasks-changed` to the main window), `open_external` (https URLs
+  only). The web page may also listen to events (`menu`, `tasks-changed`, `quick-shown`).
   No file system, shell, process, updater or dialog access from JavaScript. `build.rs` lists the
   commands in the app manifest, so they need an explicit permission; anything else is denied.
 - Navigation: the webview stays on the DayDitto origin. Any other http(s) or mailto link opens in
@@ -88,8 +94,7 @@ as an artifact; it's ad-hoc signed and not notarized, so open it with right-clic
 ## Known limits
 
 - Online only; there's no offline copy of your planner.
-- The quick capture shortcut is fixed (⌃⌥D) and the window doesn't appear over full-screen apps.
-  Opening it activates DayDitto, so an open main window may come forward too.
+- The quick capture shortcut is fixed (⌃⌥D).
 - Losing the connection after the site has loaded shows WebKit's error page; use View → Reload.
 - `Cargo.lock` is not committed yet: commit the one from the first CI build for reproducible builds.
 
@@ -100,12 +105,12 @@ dist/                     splash / offline page (index.html, splash.css, splash.
 src-tauri/
   tauri.conf.json         windows (created from Rust with `create: false`), bundle, updater, deep link
   capabilities/default.json   the only permissions, for the DayDitto origin
-  build.rs                app manifest: the three commands
+  build.rs                app manifest: the four commands
   src/lib.rs              plugins, windows, user agent, close-to-hide, Dock reopen
-  src/commands.rs         set_badge, hide_quick, open_external
+  src/commands.rs         set_badge, hide_quick, quick_saved, open_external
   src/navigation.rs       what stays in the webview, what opens in the browser
   src/deep_link.rs        dayditto://auth/callback → /auth/callback
-  src/quick.rs            the quick capture window
+  src/quick.rs            the quick capture window (an NSPanel on macOS)
   src/shortcut.rs         ⌃⌥D
   src/menu.rs             menu bar, Go actions → `menu` event
   src/updater.rs          checks, dialog, install and restart
