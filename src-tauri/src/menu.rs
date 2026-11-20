@@ -37,7 +37,12 @@ pub fn install(app: &AppHandle) -> tauri::Result<()> {
         .paste()
         .select_all()
         .build()?;
+    // Zoom In is ⌘= only: muda rejects "Plus" as a key name, and an invalid accelerator would fail the build.
     let view = SubmenuBuilder::new(app, "View")
+        .item(&MenuItemBuilder::with_id("zoom-in", "Zoom In").accelerator("CmdOrCtrl+=").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom-out", "Zoom Out").accelerator("CmdOrCtrl+-").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom-reset", "Actual Size").accelerator("CmdOrCtrl+0").build(app)?)
+        .separator()
         .item(&MenuItemBuilder::with_id("reload", "Reload").accelerator("CmdOrCtrl+R").build(app)?)
         .separator()
         .fullscreen()
@@ -91,6 +96,9 @@ fn handle(app: &AppHandle, id: &str, launch_at_login: &CheckMenuItem<Wry>) {
     match id {
         "check-updates" => crate::updater::check_now(app),
         "launch-at-login" => toggle_launch_at_login(app, launch_at_login),
+        "zoom-in" => crate::zoom::zoom_in(app),
+        "zoom-out" => crate::zoom::zoom_out(app),
+        "zoom-reset" => crate::zoom::reset(app),
         "reload" => {
             if let Some(window) = app.get_webview_window(crate::MAIN) {
                 let _ = window.reload();

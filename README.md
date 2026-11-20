@@ -14,7 +14,11 @@ local splash, then loads the site in a WKWebView, and adds what a browser tab ca
   stays hidden, in the background stays there) and closing it leaves you in the app you were in.
   It shows on every Space, over full-screen apps too. A saved task reaches the main window right
   away (`quick_saved` → `tasks-changed` event); the main window also refreshes when it regains focus.
-- **Native menu**: Edit (undo/copy/paste for text fields), View (Reload, Full Screen), Go (Today ⌘T,
+- **Zoom** (main window only; quick capture stays at 100%): View → Zoom In ⌘=, Zoom Out ⌘-,
+  Actual Size ⌘0, from 50% to 200% in 10% steps. The level is saved in `zoom.json` in the app
+  config dir (`~/Library/Application Support/com.prototypolab.dayditto/`) and restored at launch;
+  it is applied again after every page load, since WKWebView may reset it on navigation.
+- **Native menu**: Edit (undo/copy/paste for text fields), View (Zoom, Reload, Full Screen), Go (Today ⌘T,
   Week ⇧⌘W, Focus Mode ⇧⌘F, Quick Dump ⌘N, Settings ⌘,), Window, Help, plus *Check for Updates…*
   and *Launch at Login* in the app menu.
 - Closing the window keeps DayDitto running (click the Dock icon to reopen; ⌘Q quits).
@@ -113,5 +117,6 @@ src-tauri/
   src/quick.rs            the quick capture window (an NSPanel on macOS)
   src/shortcut.rs         ⌃⌥D
   src/menu.rs             menu bar, Go actions → `menu` event
+  src/zoom.rs             main window zoom: levels, zoom.json, re-applied after page loads
   src/updater.rs          checks, dialog, install and restart
 ```

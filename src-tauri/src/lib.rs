@@ -7,6 +7,7 @@ mod navigation;
 mod quick;
 mod shortcut;
 mod updater;
+mod zoom;
 
 use std::error::Error;
 
@@ -61,6 +62,7 @@ pub fn run() {
         })
         .setup(|app| {
             let handle = app.handle();
+            zoom::init(handle);
             build_window(handle, MAIN)?;
             quick::create(handle)?;
             menu::install(handle)?;
@@ -108,6 +110,8 @@ fn build_window(app: &AppHandle, label: &str) -> Result<WebviewWindow, Box<dyn E
     let window = WebviewWindowBuilder::from_config(app, config)?
         .user_agent(&user_agent(app))
         .on_navigation(move |url| navigation::allow(&navigation_app, url))
+        // WKWebView may reset the zoom on navigation; the hook only acts on the main window.
+        .on_page_load(zoom::on_page_load)
         // target=_blank links and window.open: the system browser, never a new webview.
         .on_new_window(move |url, _features| {
             navigation::open_outside(&new_window_app, &url);
