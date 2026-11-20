@@ -1,0 +1,70 @@
+name: Check
+
+# Compile errors surface here without cutting a release. Run it manually to get an
+# unsigned universal DMG as a workflow artifact for testing.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: cargo check
+        working-directory: src-tauri
+        run: cargo check
+
+      - run: npm ci
+
+      # No bundle: nothing to sign, notarize or upload.
+      - name: Debug build
+        run: npm run tauri -- build --debug --no-bundle
+
+  unsigned-dmg:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - run: npm ci
+
+      # Ad-hoc signed, not notarized, no updater artifacts (they'd need the signing key).
+      - name: Build the DMG
+        run: >-
+          npm run tauri -- build --target universal-apple-darwin --bundles dmg
+          --config '{"bundle":{"createUpdaterArtifacts":false,"macOS":{"signingIdentity":"-"}}}'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DayDitto-unsigned-dmg
+          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error

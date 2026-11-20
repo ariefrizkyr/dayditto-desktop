@@ -1,0 +1,73 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "DayDitto",
+  "version": "0.1.0",
+  "identifier": "com.prototypolab.dayditto",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "main",
+        "create": false,
+        "title": "DayDitto",
+        "url": "index.html",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 480,
+        "minHeight": 600,
+        "center": true,
+        "titleBarStyle": "Visible"
+      },
+      {
+        "label": "quick",
+        "create": false,
+        "title": "Quick capture",
+        "url": "https://dayditto.prototypolab.com/quick",
+        "width": 560,
+        "height": 240,
+        "visible": false,
+        "focus": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "skipTaskbar": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src https://dayditto.prototypolab.com"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app"],
+    "createUpdaterArtifacts": true,
+    "category": "Productivity",
+    "shortDescription": "A calm daily planner",
+    "copyright": "© Prototypolab",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.png"],
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY1MzM0NDZFNDU5QzAxMUIKUldRYkFaeEZia1F6WmRyZVFzeUF5ODNqakdHRUc1VTUwVWNTeGFnZGNrWm52Tm9IemNGODhibFgK",
+      "endpoints": ["https://dayditto.prototypolab.com/desktop/latest.json"]
+    },
+    "deep-link": {
+      "desktop": {
+        "schemes": ["dayditto"]
+      }
+    }
+  }
+}

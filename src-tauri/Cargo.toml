@@ -1,0 +1,33 @@
+[package]
+name = "dayditto"
+version = "0.1.0"
+description = "DayDitto for Mac"
+authors = ["Arief R Ramadhan"]
+repository = "https://github.com/ariefrizkyr/dayditto-desktop"
+edition = "2021"
+
+[lib]
+# The standard Tauri layout: main.rs only calls `dayditto_lib::run()`.
+name = "dayditto_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# `macos-private-api` matches `app.macOSPrivateApi` (transparent quick window); a no-op since tauri 2.12.1.
+tauri = { version = "2", features = ["macos-private-api"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-deep-link = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
+tauri-plugin-updater = "2"
+tauri-plugin-window-state = "2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

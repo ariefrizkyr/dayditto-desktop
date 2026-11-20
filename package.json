@@ -1,13 +1,11 @@
 {
   "name": "dayditto-desktop",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DayDitto for Mac: a Tauri shell around https://dayditto.prototypolab.com",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tauri": "tauri"
   },
-  "keywords": [],
-  "type": "commonjs",
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.6"
   }

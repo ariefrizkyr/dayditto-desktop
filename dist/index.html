@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>DayDitto</title>
+    <!-- Separate files, not inline: the app's CSP only allows 'self'. -->
+    <link rel="stylesheet" href="splash.css" />
+    <script src="splash.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <svg class="mark" width="56" height="56" viewBox="0 0 64 64" aria-hidden="true">
+        <rect class="tile" x="2" y="2" width="60" height="60" rx="17" />
+        <circle class="dot" cx="18" cy="43" r="5.5" fill-opacity=".55" />
+        <circle class="dot" cx="31" cy="33" r="6.5" fill-opacity=".78" />
+        <circle class="dot" cx="45" cy="21" r="7.5" />
+      </svg>
+      <h1>DayDitto</h1>
+      <div id="offline" hidden>
+        <p class="title">You’re offline</p>
+        <p class="hint">DayDitto needs a connection. Trying again every few seconds…</p>
+        <button id="retry" type="button">Retry</button>
+      </div>
+    </main>
+  </body>
+</html>
