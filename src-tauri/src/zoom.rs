@@ -42,25 +42,29 @@ pub fn reset(app: &AppHandle) {
 /// `on_page_load` hook: re-applies the level once the main window has loaded a page.
 pub fn on_page_load(window: WebviewWindow, payload: PageLoadPayload<'_>) {
     if window.label() == crate::MAIN && payload.event() == PageLoadEvent::Finished {
-        apply(window.app_handle());
+        let level = *window.app_handle().state::<Level>().0.lock().unwrap_or_else(PoisonError::into_inner);
+        apply(window.app_handle(), level);
     }
 }
 
 fn change(app: &AppHandle, step: impl Fn(f64) -> f64) {
-    let state = app.state::<Level>();
-    let mut level = state.0.lock().unwrap_or_else(PoisonError::into_inner);
-    *level = snap(step(*level));
-    apply(app);
-    if let Err(err) = save(app, *level) {
+    // The lock is held only to update the value: `set_zoom` and the file write run without it,
+    // so a page load hook running meanwhile can never wait on a lock this thread still holds.
+    let level = {
+        let mut level = app.state::<Level>().0.lock().unwrap_or_else(PoisonError::into_inner);
+        *level = snap(step(*level));
+        *level
+    };
+    apply(app, level);
+    if let Err(err) = save(app, level) {
         eprintln!("[dayditto] couldn't save the zoom level: {err}");
     }
 }
 
-fn apply(app: &AppHandle) {
+fn apply(app: &AppHandle, level: f64) {
     let Some(window) = app.get_webview_window(crate::MAIN) else {
         return;
     };
-    let level = *app.state::<Level>().0.lock().unwrap_or_else(PoisonError::into_inner);
     if let Err(err) = window.set_zoom(level) {
         eprintln!("[dayditto] couldn't set the zoom level: {err}");
     }
