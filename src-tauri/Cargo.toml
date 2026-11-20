@@ -1,6 +1,6 @@
 [package]
 name = "dayditto"
-version = "0.1.0"
+version = "0.1.1"
 description = "DayDitto for Mac"
 authors = ["Arief R Ramadhan"]
 repository = "https://github.com/ariefrizkyr/dayditto-desktop"
